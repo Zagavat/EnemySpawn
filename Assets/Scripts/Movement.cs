@@ -1,29 +1,50 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public static class AnimatorWalk { }
+
+public static class States
+{
+    public const string Up = nameof(Up);
+    public const string Down = nameof(Down);
+    public const string Left = nameof(Left);
+    public const string Right = nameof(Right);
+}
+
+[RequireComponent(typeof(Animator))]
 public class Movement : MonoBehaviour
 {
     [SerializeField] private float _speed;
 
     private Vector3 _nextPosition;
-    private float minX;
-    private float maxX;
-    private float minY;
-    private float maxY;
+    private float _minX;
+    private float _maxX;
+    private float _minY;
+    private float _maxY;
     private Animator _animator;
 
     private void Start()
     {
         float widthCamera = Camera.main.orthographicSize * Camera.main.aspect;
         Vector3 centerCamera = Camera.main.transform.position;
-        minX = centerCamera.x - widthCamera + 0.3f;
-        maxX = centerCamera.x + widthCamera - 0.3f;
-        minY = centerCamera.y - Camera.main.orthographicSize +0.3f;
-        maxY = centerCamera.y + Camera.main.orthographicSize - 0.3f;
+        _minX = centerCamera.x - widthCamera + 0.3f;
+        _maxX = centerCamera.x + widthCamera - 0.3f;
+        _minY = centerCamera.y - Camera.main.orthographicSize + 0.3f;
+        _maxY = centerCamera.y + Camera.main.orthographicSize - 0.3f;
         _animator = GetComponent<Animator>();
         _nextPosition = SetNextWaypoint();
     }
-    
+
+    private void Update()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, _nextPosition, _speed * Time.deltaTime);
+
+        if (transform.position == _nextPosition)
+        {
+            _nextPosition = SetNextWaypoint();
+        }
+    }
+
     enum Direction
     {
         Up,
@@ -43,33 +64,23 @@ public class Movement : MonoBehaviour
         switch (direction)
         {
             case (int)Direction.Up:
-                positionY = Random.Range(transform.position.y, maxY);
-                _animator.SetBool("Up", true);
+                positionY = Random.Range(transform.position.y, _maxY);
+                _animator.SetBool(States.Up, true);
                 break;
             case (int)Direction.Down:
-                positionY = Random.Range(minY, transform.position.y);
-                _animator.SetBool("Down", true);
+                positionY = Random.Range(_minY, transform.position.y);
+                _animator.SetBool(States.Down, true);
                 break;
             case (int)Direction.Left:
-                positionX = Random.Range(minX, transform.position.x);
-                _animator.SetBool("Left", true);
+                positionX = Random.Range(_minX, transform.position.x);
+                _animator.SetBool(States.Left, true);
                 break;
             case (int)Direction.Right:
-                positionX = Random.Range(transform.position.x, maxX);
-                _animator.SetBool("Right", true);
+                positionX = Random.Range(transform.position.x, _maxX);
+                _animator.SetBool(States.Right, true);
                 break;
         }
 
         return new Vector3(positionX, positionY, transform.position.z);
-    }
-
-    private void Update()
-    {
-        transform.position = Vector3.MoveTowards(transform.position, _nextPosition, _speed * Time.deltaTime);
-
-        if (transform.position == _nextPosition)
-        {
-            _nextPosition = SetNextWaypoint();
-        }
     }
 }

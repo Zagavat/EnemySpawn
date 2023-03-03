@@ -6,7 +6,7 @@ public class Spawn : MonoBehaviour
 {
     [SerializeField] private Transform _spawn;
     [SerializeField] private float _spawnPeriod;
-    [SerializeField] private GameObject _spawnPrefab;
+    [SerializeField] private Bot _template;
 
     private Transform[] _points;
     private int _maxBotsCount = 10;
@@ -30,7 +30,7 @@ public class Spawn : MonoBehaviour
 
         while(_botsOnMap < _maxBotsCount)
         {
-            GameObject _nextBot = Instantiate(_spawnPrefab, _points[Random.Range(0, _points.Length)].position, Quaternion.identity);
+            var _nextBot = Instantiate(_template, _points[Random.Range(0, _points.Length)].position, Quaternion.identity);
             _botsOnMap++;
             yield return waitForSpawnPeriod;
         }
